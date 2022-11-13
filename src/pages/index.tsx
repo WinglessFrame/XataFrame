@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { trpc } from "../utils/trpc";
+import Image from "next/image";
 
 const Home: NextPage = () => {
   const hello = trpc.example.hello.useQuery({ text: "from tRPC" });
@@ -54,6 +55,7 @@ const Home: NextPage = () => {
         </div>
         <div className="flex w-full items-center justify-center pt-6 text-2xl text-blue-500">
           {hello.data ? <p>{hello.data.greeting}</p> : <p>Loading..</p>}
+
         </div>
         <AuthShowcase />
       </main>
@@ -70,6 +72,10 @@ const AuthShowcase: React.FC = () => {
     undefined, // no input
     { enabled: sessionData?.user !== undefined },
   );
+  const { data: userProfile } = trpc.example.getUser.useQuery(
+    undefined,
+    { enabled: sessionData?.user !== undefined }
+  )
 
   return (
     <div className="flex flex-col items-center justify-center gap-2">
@@ -87,6 +93,12 @@ const AuthShowcase: React.FC = () => {
       >
         {sessionData ? "Sign out" : "Sign in"}
       </button>
+      {userProfile && (
+        <div className="flex flex-col gap-3">
+          {userProfile.image && <Image width={50} height={50} src={userProfile.image} alt="avatar" className="rounded" />}
+          {userProfile.name && <h3>{userProfile.name}</h3>}
+        </div>
+      )}
     </div>
   );
 };
